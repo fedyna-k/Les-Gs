@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <limits>
+#include <iostream>
 
 
 class Matrix {
@@ -13,7 +14,8 @@ class Matrix {
 
     public:
         Matrix(std::size_t _size);
-        std::size_t size();
+        inline std::size_t size();
+        void log();
 
         int operator () (std::size_t _i, std::size_t _j) const; 
         int& operator () (std::size_t _i, std::size_t _j);
