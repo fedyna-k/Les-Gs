@@ -3,9 +3,18 @@
 Matrix::Matrix(std::size_t _size) :
     __size(_size)
 {
-    __data = std::vector<std::vector<int>>(_size, std::vector<int>(_size));
+    __data = std::vector<std::vector<double>>(_size, std::vector<double>(_size));
 }
 
+Matrix Matrix::operator = (std::vector<std::vector<double>> matrix) {
+    for (int i(0) ; i < __size ; i++) {
+        for (int j(0) ; j < __size ; j++) {
+            __data[i][j] = matrix[i][j];
+        }
+    }
+
+    return *this;
+}
 
 inline std::size_t Matrix::size() {return __size;}
 
@@ -20,12 +29,12 @@ void Matrix::log() {
 }
 
 
-int Matrix::operator () (std::size_t _i, std::size_t _j) const {
+double Matrix::operator () (std::size_t _i, std::size_t _j) const {
     return __data[_i][_j];
 }
 
 
-int& Matrix::operator () (std::size_t _i, std::size_t _j) {
+double& Matrix::operator () (std::size_t _i, std::size_t _j) {
     return __data[_i][_j];
 }
 
@@ -50,11 +59,70 @@ Matrix operator + (Matrix _lhs, Matrix _rhs) {
 }
 
 Matrix Matrix::floyd_warshall() {
-    Matrix result(__size);
+    Matrix result(__size), preprocessed(__size);
+    double inf(std::numeric_limits<double>::infinity());
 
+    // Creation de la matrice de départ
+    for (int i(0); i < __size ; i++) {
+        for (int j(0); j < __size ; j++) {
+            if (i == j) {
+                preprocessed(i, j) = 0;             // La diag devient des 0
+            } else if ((*this)(i, j) == 0) {
+                preprocessed(i, j) = inf;           // Les 0 deviennent +inf
+            } else {
+                preprocessed(i, j) = (*this)(i, j); // Les autres restent
+            }
+        }
+    }
+
+    // Init
+    result = preprocessed;
     for (int i(0) ; i < __size ; i++) {
-        result = result + *this;
+        result = result + preprocessed;
     }
 
     return result;
+}
+
+
+int get_first_available(std::vector<bool> color_list) {
+    for (int i(0) ; i < color_list.size() ; i++) {
+        if (!color_list[i]) {
+            return i;
+        }
+    }
+
+    return color_list.size() - 1;
+}
+
+std::vector<int> Matrix::wave_color() {
+    std::vector<int> to_visit, colors(__size, -1);
+    std::vector<bool> visited(__size, false);
+
+    to_visit.push_back(0);
+    while (!to_visit.empty()) {
+        // On récupère le premier élément
+        int current = to_visit[0];
+        to_visit.erase(to_visit.begin());
+
+        // On l'ajoute dans les visités
+        visited[current] = true;
+
+        // On initialise la liste de couleurs
+        std::vector<bool> color_list(__size, false);
+
+        for (int i(0) ; i < __size ; i++) {
+            if (i != current && __data[i][current] != 0 && colors[i] != -1) {
+                color_list[colors[i]] = true;
+            }
+
+            if (!visited[i]) {
+                to_visit.push_back(i);
+            }
+        }
+
+        colors[current] = get_first_available(color_list);
+    }
+
+    return colors;
 }

@@ -10,7 +10,7 @@
 
 class Matrix {
     private:
-        std::vector<std::vector<int>> __data;
+        std::vector<std::vector<double>> __data;
         std::size_t __size;
 
     public:
@@ -18,15 +18,17 @@ class Matrix {
         inline std::size_t size();
         void log();
 
-        int operator () (std::size_t _i, std::size_t _j) const; 
-        int& operator () (std::size_t _i, std::size_t _j);
+        double operator () (std::size_t _i, std::size_t _j) const; 
+        double& operator () (std::size_t _i, std::size_t _j);
+
+        Matrix operator = (std::vector<std::vector<double>> matrix);
 
         // Floyd Warshall
         friend Matrix operator + (Matrix _lhs, Matrix _rhs);
         Matrix floyd_warshall();
 
         // La vague
-        Matrix wave_color();
+        std::vector<int> wave_color();
 
         // BFS
         Matrix dijkstra(int _starting_index);

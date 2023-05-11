@@ -1,0 +1,4 @@
+# Non-necessary folders
+bin/
+.vscode/
+obj/
